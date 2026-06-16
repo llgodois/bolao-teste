@@ -44,7 +44,7 @@ header{background:linear-gradient(135deg,var(--azul),#001a5e);border-bottom:3px 
 .fg{display:flex;flex-direction:column;gap:5px;}
 .fg label{font-size:.76rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;}
 .fg input:disabled{opacity:0.4;cursor:not-allowed;border-color:rgba(255,255,255,0.05);}
-.fg input,.fg select{background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:.58rem .82rem;color:var(--text);font-family:'Inter',sans-serif;font-size:.87rem;transition:border-color .15s;}
+.fg input,,.fg select{background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:.58rem .82rem;color:var(--text);font-family:'Inter',sans-serif;font-size:.87rem;transition:border-color .15s;}
 .fg input:focus,.fg select:focus{outline:none;border-color:var(--amarelo);}
 .fg input::placeholder{color:var(--muted);}
 select option{background:#1a2235;}
@@ -426,7 +426,7 @@ const COPA = [
   {id:'d6',t1:'Paraguai',t2:'Austrália',dt:'2026-06-25T23:00',fase:'Grupos',gr:'D',city:'San Francisco'},
   // GRUPO E — Alemanha, Curaçao, Costa do Marfim, Equador
   {id:'e1',t1:'Alemanha',t2:'Curaçao',dt:'2026-06-14T14:00',fase:'Grupos',gr:'E',city:'Houston'},
-  {id:'e2',t1:'Costa do Marfim',t2:'Equador',dt:'2026-06-14T20:00',fase:'Grupos',gr(--E,city:'Philadelphia'},
+  {id:'e2',t1:'Costa do Marfim',t2:'Equador',dt:'2026-06-14T20:00',fase:'Grupos',gr:'E',city:'Philadelphia'},
   {id:'e3',t1:'Alemanha',t2:'Costa do Marfim',dt:'2026-06-20T17:00',fase:'Grupos',gr:'E',city:'Toronto'},
   {id:'e4',t1:'Equador',t2:'Curaçao',dt:'2026-06-20T21:00',fase:'Grupos',gr:'E',city:'Kansas City'},
   {id:'e5',t1:'Curaçao',t2:'Costa do Marfim',dt:'2026-06-25T17:00',fase:'Grupos',gr:'E',city:'Philadelphia'},
@@ -546,6 +546,7 @@ const FASE_LABEL={R32:'Rodada de 32',Oitavas:'Oitavas de Final',Quartas:'Quartas
 function _hideLoading(){}
 
 async function initFirebase(){
+  // Timeout de segurança: libera interface em modo local após 8 segundos se falhar
   const safetyTimer=setTimeout(()=>{
     if(!fbOk){
       ST.jogos=COPA.map(j=>({...j,res:{g1:'',g2:''},live:false}));
@@ -584,7 +585,7 @@ async function initFirebase(){
   }
 }
 
-// LÓGICA DE PROTEÇÃO ANTISUBESCRITA CORRIGIDA (EVITA SUMIÇO DE PALPITES)
+// LÓGICA DE PROTEÇÃO ANTISUBESCRITA (EVITA SUMIÇO DE PALPITES)
 async function fbSave(){
   if(!fbOk){saveLocal();return;}
   try{
@@ -1033,8 +1034,7 @@ function renderPalpitar(){
     h+='<div class="grupos-grid" style="margin-bottom:1.5rem">';
     gruposComJogos.forEach(gr=>{
       const jogosGr=ST.jogos.filter(j=>j.fase==='Grupos'&&j.gr===gr).sort((a,b)=>new Date(a.dt)-new Date(b.dt));
-      h+=`<div class="grupo-card">
-        <div class="grupo-header">Grupo ${gr}</div>`;
+      h+=`<div class="grupo-card"><div class="grupo-header">Grupo ${gr}</div>`;
       jogosGr.forEach(j=>{
         const aberto=jogoAberto(j);
         const st=jogoStatus(j);
@@ -1162,7 +1162,7 @@ window.iniciarCountdown=iniciarCountdown;
 window.renderPalpitar=renderPalpitar;
 
 // ════════════════════════════════════════════
-// SALVAR PALPITES (CORRIGIDO ERRO DE SINTAXE)
+// SALVAR PALPITES
 // ════════════════════════════════════════════
 async function salvarPalpites(){
   const nome=document.getElementById('inp-nome').value.trim();
