@@ -1,17 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <style>
-        /* Adicione esta regra ao seu CSS existente para melhor visibilidade do bloqueio */
-        .input-bloqueado {
-            opacity: 0.5;
-            cursor: not-allowed;
-            pointer-events: none;
-        }
-    </style>
-</head><!DOCTYPE html>
-<html lang="pt-BR">
-<head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Bolão da Copa 2026 Salada</title>
@@ -54,6 +43,7 @@ header{background:linear-gradient(135deg,var(--azul),#001a5e);border-bottom:3px 
 .sc .l{font-size:.73rem;color:var(--muted);margin-top:3px;text-transform:uppercase;letter-spacing:1px;}
 .fg{display:flex;flex-direction:column;gap:5px;}
 .fg label{font-size:.76rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;}
+.fg input:disabled{opacity:0.4;cursor:not-allowed;border-color:rgba(255,255,255,0.05);}
 .fg input,.fg select{background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:.58rem .82rem;color:var(--text);font-family:'Inter',sans-serif;font-size:.87rem;transition:border-color .15s;}
 .fg input:focus,.fg select:focus{outline:none;border-color:var(--amarelo);}
 .fg input::placeholder{color:var(--muted);}
@@ -274,16 +264,16 @@ select option{background:#1a2235;}
   <div class="card">
     <div class="ct">✏️ Registrar Palpites</div>
     
-    <!-- INDICADOR DE CONEXÃO MOVIDO PARA CÁ -->
-    <div id="fb-status-palpitar" style="display:flex;align-items:center;gap:.6rem;margin-bottom:1rem;padding:.75rem 1rem;background:rgba(0,0,0,.2);border:1px solid var(--border);border-radius:8px;">
-      <div id="fb-dot" class="dot spin"></div>
-      <span id="fb-msg" style="font-size:.85rem;color:var(--amarelo);font-weight:600;">Conectando ao banco de dados...</span>
+    <!-- NOTIFICAÇÃO DE CONEXÃO INDEPENDENTE APENAS NA ABA DE PALPITES -->
+    <div id="fb-connection-status" style="display:flex;align-items:center;gap:.6rem;color:var(--muted);font-size:.85rem;margin-bottom:1rem;background:rgba(255,255,255,0.03);padding:10px;border-radius:8px;border:1px solid var(--border)">
+      <div class="dot spin"></div>
+      <span id="fb-status-text">Conectando ao Firebase, aguarde...</span>
     </div>
 
     <div style="margin-bottom:1rem" class="fg2">
-      <div class="fg"><label>Seu nome / apelido</label><input type="text" id="inp-nome" placeholder="Ex: João Silva" maxlength="40" oninput="renderPalpitar()" onchange="renderPalpitar()"/></div>
+      <!-- INPUT INICIA DESABILITADO ATÉ A CONEXÃO CONCLUIR -->
+      <div class="fg"><label>Seu nome / apelido</label><input type="text" id="inp-nome" placeholder="Ex: João Silva" maxlength="40" disabled oninput="renderPalpitar()" onchange="renderPalpitar()"/></div>
     </div>
-    
     <div style="display:flex;gap:.4rem;margin-bottom:1rem;flex-wrap:wrap">
       <button class="btn btn-y btn-sm" id="view-grupo" onclick="setViewPalpitar('grupo')">📅 Por grupo</button>
       <button class="btn btn-o btn-sm" id="view-dia" onclick="setViewPalpitar('dia')">🗓️ Por dia</button>
@@ -418,7 +408,7 @@ const COPA = [
   {id:'b2',t1:'Qatar',t2:'Suíça',dt:'2026-06-13T16:00',fase:'Grupos',gr:'B',city:'San Francisco'},
   {id:'b3',t1:'Suíça',t2:'Bósnia-Herzegovina',dt:'2026-06-18T16:00',fase:'Grupos',gr:'B',city:'Los Angeles'},
   {id:'b4',t1:'Canadá',t2:'Qatar',dt:'2026-06-18T19:00',fase:'Grupos',gr:'B',city:'Vancouver'},
-  {id:'b5',t1:'Suíça',t2:'Canadá',dt:'2026-06-24T16:00',fase:'Grupos',gr:'B',city:'Vancouver'},
+  {id:'b5',t1:'Suíça',t2:'Canadá',dt:'2026-06-24T16:00',fase:'Grupos',gr(--B,city:'Vancouver'},
   {id:'b6',t1:'Bósnia-Herzegovina',t2:'Qatar',dt:'2026-06-24T16:00',fase:'Grupos',gr:'B',city:'Seattle'},
   // GRUPO C — Brasil, Marrocos, Haiti, Escócia
   {id:'c1',t1:'Brasil',t2:'Marrocos',dt:'2026-06-13T19:00',fase:'Grupos',gr:'C',city:'Nova York/NJ'},
@@ -497,7 +487,7 @@ const COPA = [
   {id:'r04',t1:'A definir',t2:'A definir',dt:'2026-06-29T22:00',fase:'R32',gr:'',city:'Monterrey'},
   {id:'r05',t1:'A definir',t2:'A definir',dt:'2026-06-30T14:00',fase:'R32',gr:'',city:'Dallas'},
   {id:'r06',t1:'A definir',t2:'A definir',dt:'2026-06-30T18:00',fase:'R32',gr:'',city:'Nova York/NJ'},
-  {id:'r07',t1:'A definir',t2:'A definir',dt:'2026-06-30T22:00',fase:'R32',gr:'',city:'Cidade do México'},
+  {id:'r07',t1:'A definir',t2:'A definir',dt:'2026-07-01T22:00',fase:'R32',gr:'',city:'Cidade do México'},
   {id:'r08',t1:'A definir',t2:'A definir',dt:'2026-07-01T13:00',fase:'R32',gr:'',city:'Atlanta'},
   {id:'r09',t1:'A definir',t2:'A definir',dt:'2026-07-01T17:00',fase:'R32',gr:'',city:'Seattle'},
   {id:'r10',t1:'A definir',t2:'A definir',dt:'2026-07-01T21:00',fase:'R32',gr:'',city:'San Francisco'},
@@ -539,7 +529,6 @@ function fl(t,sz=20){
   const h=Math.round(sz*.75);
   return '<img src="https://flagcdn.com/'+sz+'x'+h+'/'+c+'.png" width="'+sz+'" height="'+h+'" style="object-fit:cover;border-radius:2px;vertical-align:middle;margin-right:3px" alt="">';
 }
-
 // ════════════════════════════════════════════
 // STATE
 // ════════════════════════════════════════════
@@ -554,49 +543,27 @@ const FASE_LABEL={R32:'Rodada de 32',Oitavas:'Oitavas de Final',Quartas:'Quartas
 // ════════════════════════════════════════════
 // FIREBASE
 // ════════════════════════════════════════════
-
-// Atualiza o painel inline na aba Palpitar
-function setSS(t, txt) {
-  const dot = document.getElementById('fb-dot');
-  const msg = document.getElementById('fb-msg');
-  if(dot && msg) {
-    dot.className = 'dot ' + t;
-    msg.textContent = txt;
-    if(t === 'ok') {
-      msg.style.color = '#4ade80'; // verde sucesso
-      // Esconder status após 4 segundos para limpar a tela
-      setTimeout(() => {
-        const pnl = document.getElementById('fb-status-palpitar');
-        if(pnl) pnl.style.display = 'none';
-      }, 4000);
-    } else if (t === 'err') {
-      msg.style.color = '#f87171'; // vermelho erro
-    } else {
-      msg.style.color = 'var(--amarelo)';
-    }
-  }
-}
+function _hideLoading(){} // Dummy, o controle agora é local
 
 async function initFirebase(){
-  // Timeout de segurança
+  // Timeout de segurança: libera interface em modo local após 8 segundos se falhar
   const safetyTimer=setTimeout(()=>{
     if(!fbOk){
       ST.jogos=COPA.map(j=>({...j,res:{g1:'',g2:''},live:false}));
       ST.palpites=[];
       updSt();renderJogos();renderBracket();
-      setSS('err','Sem conexão (Offline)');
+      setSS('err','Sem resposta do servidor (Modo Local ativo)');
     }
   },8000);
 
   try{
-    setSS('spin','Conectando ao banco de dados...');
     app=firebase.initializeApp(FIREBASE_CONFIG);
     db=firebase.database();
     dbRef=db.ref('bolao26');
     fbOk=true;
+    setSS('spin','Conectando ao Firebase...');
     const snap = await dbRef.once('value');
-    const data = snap.val();
-    
+    const data = snapshot = snap.val();
     if(data && (data.palpites?.length > 0 || data.jogos?.length > 0)){
       ST = {...ST, ...data};
       if(!ST.jogos || ST.jogos.length === 0){
@@ -606,36 +573,25 @@ async function initFirebase(){
       ST.jogos = COPA.map(j=>({...j,res:{g1:'',g2:''},live:false}));
       ST.palpites = [];
     }
-    
     clearTimeout(safetyTimer);
-    updSt();
-    renderJogos();
-    renderBracket();
-    
-    if(document.getElementById('pg-palpitar').classList.contains('on')) renderPalpitar();
-    if(document.getElementById('pg-ranking').classList.contains('on')) rRnk();
-    
-    setSS('ok','Conectado ao Firebase 🔥');
+    updSt();renderJogos();renderBracket();
+    if(document.getElementById('pg-palpitar').classList.contains('on'))renderPalpitar();
+    setSS('ok','Firebase conectado com sucesso! 🔥');
   }catch(e){
     clearTimeout(safetyTimer);
-    setSS('err','Modo Offline (Falha de conexão)');
+    setSS('err','Falha na conexão. Rodando em modo local local.');
     loadLocal();
     updSt();renderJogos();renderBracket();
   }
 }
-
 async function fbSave(){
   if(!fbOk){saveLocal();return;}
   try{
-    // Proteção: verifica quantos palpites tem no Firebase antes de salvar
     const snap=await dbRef.once('value');
     const atual=snap.val();
     const palsFB=(atual?.palpites||[]).length;
     const palsST=(ST.palpites||[]).length;
-    // Só salva se ST tem pelo menos tantos palpites quanto o Firebase
-    // Isso evita apagar palpites de outros usuários
     if(palsST < palsFB){
-      // Mescla: mantém palpites do Firebase que não estão em ST
       const palsExtras=(atual.palpites||[]).filter(fb=>
         !ST.palpites.some(st=>st.nome===fb.nome&&st.jid===fb.jid)
       );
@@ -653,8 +609,34 @@ function saveLocal(){try{localStorage.setItem('bolao26v4',JSON.stringify(ST));}c
 function save(){fbSave();}
 
 // ════════════════════════════════════════════
-// API SYNC
+// API SYNC / INTERFACE STATE
 // ════════════════════════════════════════════
+let syncT=null;
+
+function setSS(t,txt){
+  const box = document.getElementById('fb-connection-status');
+  const dot = box ? box.querySelector('.dot') : null;
+  const txtEl = document.getElementById('fb-status-text');
+  const inp = document.getElementById('inp-nome');
+  
+  if(!box || !txtEl) return;
+  txtEl.textContent = txt;
+  if(dot) dot.className = 'dot ' + t;
+  
+  if(t === 'spin') {
+    if(inp) inp.disabled = true;
+    box.style.borderColor = 'var(--amarelo)';
+  } else if(t === 'ok') {
+    if(inp) inp.disabled = false;
+    box.style.borderColor = '#4ade80';
+    txtEl.style.color = '#4ade80';
+    setTimeout(() => { box.style.display = 'none'; }, 2500);
+  } else if(t === 'err') {
+    if(inp) inp.disabled = false; 
+    box.style.borderColor = '#f87171';
+    txtEl.style.color = '#f87171';
+  }
+}
 
 function showTab(t){
   document.querySelectorAll('.pg').forEach(x=>x.classList.remove('on'));
@@ -797,7 +779,7 @@ function renderJogos(){
       h+=`<div class="grupo-card"><div class="grupo-header">${FASE_LABEL[f]||f}</div>`;
       jogos.forEach(j=>{
         const ok=j.res&&j.res.g1!=='';
-        h+=`<div class="jogo-row ${j.live?'':''}">
+        h+=`<div class="jogo-row">
           <div class="jt">${fl(j.t1)} ${j.t1}</div>
           <div class="jm">
             ${ok?`<div class="placar">${j.res.g1}<span style="color:var(--muted)">-</span>${j.res.g2}</div>`:`<div style="font-size:.7rem;color:var(--muted)">${fdata(j.dt)}<br>${fhora(j.dt)}</div>`}
@@ -816,20 +798,25 @@ function renderJogos(){
     if(_filtroAtivo!=='todos'&&_filtroAtivo!==gr)return;
     const jogos=ST.jogos.filter(j=>j.fase==='Grupos'&&j.gr===gr).sort((a,b)=>new Date(a.dt)-new Date(b.dt));
     if(!jogos.length)return;
-    h+=`<div class="grupo-card"><div class="grupo-header">Grupo ${gr}</div>`;
+    h+=`<div class="grupo-card">
+      <div class="grupo-header">Grupo ${gr}</div>`;
     jogos.forEach(j=>{
       const ok=j.res&&j.res.g1!=='';
       const st=jogoStatus(j);
       const w1=ok&&j.res.g1>j.res.g2, w2=ok&&j.res.g2>j.res.g1;
       h+=`<div class="jogo-row" style="${j.live?'background:rgba(239,68,68,.07);border-left:3px solid rgba(239,68,68,.6)':''}">
-        <div class="jt ${w1?'':''}"><span style="${w1?'color:var(--amarelo);font-weight:700':''}">${fl(j.t1)} ${j.t1}</span></div>
+        <div class="jt">
+          <span style="${w1?'color:var(--amarelo);font-weight:700':''}">${fl(j.t1)} ${j.t1}</span>
+        </div>
         <div class="jm">
           ${(ok||(j.live||st==='andamento'))
             ?`<div class="placar" style="${j.live||st==='andamento'?'color:#f87171':''}">${ok?j.res.g1:0}<span style="color:var(--muted)">-</span>${ok?j.res.g2:0}</div>
               ${j.live||st==='andamento'?'<span class="badge blv" style="margin-top:2px;display:inline-block">🔴 Ao vivo</span>':''}` 
             :`<div style="font-size:.7rem;color:var(--muted)">${fdata(j.dt)}<br>${fhora(j.dt)}</div>`}
         </div>
-        <div class="jt r"><span style="${w2?'color:var(--amarelo);font-weight:700':''}"> ${j.t2} ${fl(j.t2)}</span></div>
+        <div class="jt r">
+          <span style="${w2?'color:var(--amarelo);font-weight:700':''}"> ${j.t2} ${fl(j.t2)}</span>
+        </div>
       </div>`;
     });
     h+='</div>';
@@ -979,7 +966,6 @@ function renderPalpitar(){
     diasOrder.forEach(({key:dia})=>{
       const jogosD=diasMap[dia];
       jogosD.sort((a,b)=>new Date(a.dt)-new Date(b.dt));
-      const temAbertosHoje=jogosD.some(j=>jogoAberto(j));
       hd+=`<div style="font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:1px;color:var(--amarelo);margin:.75rem 0 .5rem;display:flex;align-items:center;gap:.5rem;text-transform:capitalize">
         📅 ${dia}<span style="flex:1;height:1px;background:var(--border);display:block"></span></div>`;
       jogosD.forEach(j=>{
@@ -1024,7 +1010,8 @@ function renderPalpitar(){
     h+='<div class="grupos-grid" style="margin-bottom:1.5rem">';
     gruposComJogos.forEach(gr=>{
       const jogosGr=ST.jogos.filter(j=>j.fase==='Grupos'&&j.gr===gr).sort((a,b)=>new Date(a.dt)-new Date(b.dt));
-      h+=`<div class="grupo-card"><div class="grupo-header">Grupo ${gr}</div>`;
+      h+=`<div class="grupo-card">
+        <div class="grupo-header">Grupo ${gr}</div>`;
       jogosGr.forEach(j=>{
         const aberto=jogoAberto(j);
         const st=jogoStatus(j);
@@ -1038,7 +1025,7 @@ function renderPalpitar(){
           isFim?'opacity:.5;background:rgba(0,0,0,.15)':
           isLive?'background:rgba(239,68,68,.06);border-left:2px solid rgba(239,68,68,.5)':''
         }">
-          <div class="jt">${fl(j.t1)} ${j.t1}</div>
+          <div class="jt"><span style="${isFim && p && r===3?'color:var(--amarelo);font-weight:700':''}">${fl(j.t1)} ${j.t1}</span></div>
           <div class="jm">
             ${aberto
               ? `<div class="js" style="margin-bottom:2px">
@@ -1067,8 +1054,9 @@ function renderPalpitar(){
   fasesMM.forEach(f=>{
     const jogosF=ST.jogos.filter(j=>j.fase===f).sort((a,b)=>new Date(a.dt)-new Date(b.dt));
     if(!jogosF.length)return;
+    const label=FASE_LABEL[f]||f;
     h+=`<div style="font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:1px;color:var(--amarelo);margin:1rem 0 .5rem;display:flex;align-items:center;gap:.5rem">
-      ${FASE_LABEL[f]||f}<span style="flex:1;height:1px;background:var(--border);display:block"></span></div>`;
+      ${label}<span style="flex:1;height:1px;background:var(--border);display:block"></span></div>`;
     jogosF.forEach(j=>{
       const aberto=jogoAberto(j);
       const st=jogoStatus(j);
@@ -1151,7 +1139,7 @@ window.iniciarCountdown=iniciarCountdown;
 window.renderPalpitar=renderPalpitar;
 
 // ════════════════════════════════════════════
-// SALVAR PALPITES
+// SALVAR PALPITES (CORRIGIDO ERRO DE SINTAXE)
 // ════════════════════════════════════════════
 async function salvarPalpites(){
   const nome=document.getElementById('inp-nome').value.trim();
@@ -1285,7 +1273,7 @@ function renderRankingGrupo(gr){
       </div>
     </div>`;
   });
-  h+='<p class="ht" style="margin-top:.65rem;text-align:center">Toque para ver detalhes · ${jogosGr.length} jogo(s) encerrado(s)</p>';
+  h+=`<p class="ht" style="margin-top:.65rem;text-align:center">Toque para ver detalhes · ${jogosGr.length} jogo(s) encerrado(s)</p>`;
   el.innerHTML=h;
 }
 window.renderRankingGrupo=renderRankingGrupo;
@@ -1641,7 +1629,7 @@ function salvarTimes(id){
   if(!t1||!t2){toast('Escolha os dois times!','e');return;}
   j.t1=t1;j.t2=t2;
   save();rAdmJ();renderJogos();renderBracket();
-  toast('✅ Times atualizados: '+t1+' × '+t2);
+  toast('✅ Times updated: '+t1+' × '+t2);
 }
 window.salvarTimes=salvarTimes;
 
@@ -1795,7 +1783,6 @@ window.exportar=exportar;
 
 document.getElementById('modal-admin').addEventListener('click',function(e){if(e.target===this)closeAdmin();});
 
-
 document.addEventListener('input', function(e){
   if(e.target && e.target.id && e.target.id.startsWith('pp-')) updateFAB();
 });
@@ -1808,7 +1795,7 @@ window.showTab = function(t){
   else{setTimeout(updateFAB,100);}
 };
 
-// START
+// INICIALIZAÇÃO
 initFirebase();
 </script>
 
@@ -1816,45 +1803,5 @@ initFirebase();
   💾 Salvar palpites
   <span class="fab-count" id="fab-count">0</span>
 </button>
-</body>
-</html>
-<body>
-    <script>
-        // --- ADIÇÃO NECESSÁRIA ---
-        let firebaseReady = false; 
-
-        // Função para atualizar o estado da conexão
-        function setFirebaseReady(status) {
-            firebaseReady = status;
-            const loadingScreen = document.getElementById('loading-screen');
-            if (status) {
-                loadingScreen.style.display = 'none'; // Remove a tela de loading
-                renderPalpitar(); // Renderiza os palpites após a conexão
-            }
-        }
-
-        // --- ATUALIZAÇÃO NO SEU RENDERIZADOR ---
-        function renderPalpitar() {
-            // ... seu código original ...
-            const inputs = document.querySelectorAll('.js input');
-            inputs.forEach(input => {
-                input.disabled = !firebaseReady; // Bloqueia se não estiver pronto
-                if (!firebaseReady) {
-                    input.classList.add('input-bloqueado');
-                } else {
-                    input.classList.remove('input-bloqueado');
-                }
-            });
-        }
-
-        // --- SIMULAÇÃO DE CONEXÃO COM FIREBASE ---
-        // Quando o Firebase terminar de carregar, chame esta função:
-        firebase.initializeApp(FIREBASE_CONFIG);
-        firebase.database().ref('.info/connected').on('value', function(snapshot) {
-            if (snapshot.val() === true) {
-                setFirebaseReady(true);
-            }
-        });
-    </script>
 </body>
 </html>
