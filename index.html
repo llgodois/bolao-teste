@@ -264,14 +264,14 @@ select option{background:#1a2235;}
   <div class="card">
     <div class="ct">✏️ Registrar Palpites</div>
     
-    <!-- NOTIFICAÇÃO DE CONEXÃO INDEPENDENTE APENAS NA ABA DE PALPITES -->
-    <div id="fb-connection-status" style="display:flex;align-items:center;gap:.6rem;color:var(--muted);font-size:.85rem;margin-bottom:1rem;background:rgba(255,255,255,0.03);padding:10px;border-radius:8px;border:1px solid var(--border)">
+    <!-- NOTIFICAÇÃO DE CONEXÃO EXCLUSIVA NA SEÇÃO DE PALPITES -->
+    <div id="fb-connection-status" style="display:flex;align-items:center;gap:.6rem;color:var(--muted);font-size:.85rem;margin-bottom:1rem;background:rgba(255,255,223,0.03);padding:12px;border-radius:8px;border:1px solid var(--border)">
       <div class="dot spin"></div>
       <span id="fb-status-text">Conectando ao Firebase, aguarde...</span>
     </div>
 
     <div style="margin-bottom:1rem" class="fg2">
-      <!-- INPUT INICIA DESABILITADO ATÉ A CONEXÃO CONCLUIR -->
+      <!-- O INPUT DE NOME INICIA BLOQUEADO ATÉ QUE O BANCO DE DADOS RESPONDA -->
       <div class="fg"><label>Seu nome / apelido</label><input type="text" id="inp-nome" placeholder="Ex: João Silva" maxlength="40" disabled oninput="renderPalpitar()" onchange="renderPalpitar()"/></div>
     </div>
     <div style="display:flex;gap:.4rem;margin-bottom:1rem;flex-wrap:wrap">
@@ -408,7 +408,7 @@ const COPA = [
   {id:'b2',t1:'Qatar',t2:'Suíça',dt:'2026-06-13T16:00',fase:'Grupos',gr:'B',city:'San Francisco'},
   {id:'b3',t1:'Suíça',t2:'Bósnia-Herzegovina',dt:'2026-06-18T16:00',fase:'Grupos',gr:'B',city:'Los Angeles'},
   {id:'b4',t1:'Canadá',t2:'Qatar',dt:'2026-06-18T19:00',fase:'Grupos',gr:'B',city:'Vancouver'},
-  {id:'b5',t1:'Suíça',t2:'Canadá',dt:'2026-06-24T16:00',fase:'Grupos',gr(--B,city:'Vancouver'},
+  {id:'b5',t1:'Suíça',t2:'Canadá',dt:'2026-06-24T16:00',fase:'Grupos',gr:'B',city:'Vancouver'},
   {id:'b6',t1:'Bósnia-Herzegovina',t2:'Qatar',dt:'2026-06-24T16:00',fase:'Grupos',gr:'B',city:'Seattle'},
   // GRUPO C — Brasil, Marrocos, Haiti, Escócia
   {id:'c1',t1:'Brasil',t2:'Marrocos',dt:'2026-06-13T19:00',fase:'Grupos',gr:'C',city:'Nova York/NJ'},
@@ -426,7 +426,7 @@ const COPA = [
   {id:'d6',t1:'Paraguai',t2:'Austrália',dt:'2026-06-25T23:00',fase:'Grupos',gr:'D',city:'San Francisco'},
   // GRUPO E — Alemanha, Curaçao, Costa do Marfim, Equador
   {id:'e1',t1:'Alemanha',t2:'Curaçao',dt:'2026-06-14T14:00',fase:'Grupos',gr:'E',city:'Houston'},
-  {id:'e2',t1:'Costa do Marfim',t2:'Equador',dt:'2026-06-14T20:00',fase:'Grupos',gr:'E',city:'Philadelphia'},
+  {id:'e2',t1:'Costa do Marfim',t2:'Equador',dt:'2026-06-14T20:00',fase:'Grupos',gr(--E,city:'Philadelphia'},
   {id:'e3',t1:'Alemanha',t2:'Costa do Marfim',dt:'2026-06-20T17:00',fase:'Grupos',gr:'E',city:'Toronto'},
   {id:'e4',t1:'Equador',t2:'Curaçao',dt:'2026-06-20T21:00',fase:'Grupos',gr:'E',city:'Kansas City'},
   {id:'e5',t1:'Curaçao',t2:'Costa do Marfim',dt:'2026-06-25T17:00',fase:'Grupos',gr:'E',city:'Philadelphia'},
@@ -543,16 +543,15 @@ const FASE_LABEL={R32:'Rodada de 32',Oitavas:'Oitavas de Final',Quartas:'Quartas
 // ════════════════════════════════════════════
 // FIREBASE
 // ════════════════════════════════════════════
-function _hideLoading(){} // Dummy, o controle agora é local
+function _hideLoading(){}
 
 async function initFirebase(){
-  // Timeout de segurança: libera interface em modo local após 8 segundos se falhar
   const safetyTimer=setTimeout(()=>{
     if(!fbOk){
       ST.jogos=COPA.map(j=>({...j,res:{g1:'',g2:''},live:false}));
       ST.palpites=[];
       updSt();renderJogos();renderBracket();
-      setSS('err','Sem resposta do servidor (Modo Local ativo)');
+      setSS('err','Sem resposta do servidor (Modo Local Ativo)');
     }
   },8000);
 
@@ -563,7 +562,7 @@ async function initFirebase(){
     fbOk=true;
     setSS('spin','Conectando ao Firebase...');
     const snap = await dbRef.once('value');
-    const data = snapshot = snap.val();
+    const data = snap.val();
     if(data && (data.palpites?.length > 0 || data.jogos?.length > 0)){
       ST = {...ST, ...data};
       if(!ST.jogos || ST.jogos.length === 0){
@@ -576,30 +575,56 @@ async function initFirebase(){
     clearTimeout(safetyTimer);
     updSt();renderJogos();renderBracket();
     if(document.getElementById('pg-palpitar').classList.contains('on'))renderPalpitar();
-    setSS('ok','Firebase conectado com sucesso! 🔥');
+    setSS('ok','Firebase Conectado! 🔥');
   }catch(e){
     clearTimeout(safetyTimer);
-    setSS('err','Falha na conexão. Rodando em modo local local.');
+    setSS('err','Falha na conexão. Rodando em modo local.');
     loadLocal();
     updSt();renderJogos();renderBracket();
   }
 }
+
+// LÓGICA DE PROTEÇÃO ANTISUBESCRITA CORRIGIDA (EVITA SUMIÇO DE PALPITES)
 async function fbSave(){
   if(!fbOk){saveLocal();return;}
   try{
-    const snap=await dbRef.once('value');
-    const atual=snap.val();
-    const palsFB=(atual?.palpites||[]).length;
-    const palsST=(ST.palpites||[]).length;
-    if(palsST < palsFB){
-      const palsExtras=(atual.palpites||[]).filter(fb=>
-        !ST.palpites.some(st=>st.nome===fb.nome&&st.jid===fb.jid)
-      );
-      ST.palpites=[...ST.palpites,...palsExtras];
+    const snap = await dbRef.once('value');
+    const atual = snap.val() || {};
+    const fbPalpites = atual.palpites || [];
+    const meuNome = document.getElementById('inp-nome').value.trim();
+
+    if (!meuNome) {
+      await dbRef.set(ST);
+      return;
     }
+
+    // Isola os registros de todos os outros usuários armazenados em nuvem
+    const palpitesDosOutros = fbPalpites.filter(p => p.nome.toLowerCase() !== meuNome.toLowerCase());
+
+    // Isola os meus próprios palpites locais atuais
+    const meusPalpitesLocais = ST.palpites.filter(p => p.nome.toLowerCase() === meuNome.toLowerCase());
+
+    // Junta as peças preservando as entradas alheias
+    ST.palpites = [...palpitesDosOutros, ...meusPalpitesLocais];
+
+    // Evita sobrescrever placares oficiais que o admin porventura postou em tempo real
+    if (atual.jogos) {
+      atual.jogos.forEach(fbJ => {
+        const meuJ = ST.jogos.find(j => j.id === fbJ.id);
+        if (meuJ && fbJ.res && fbJ.res.g1 !== '') {
+          meuJ.res = fbJ.res;
+          meuJ.live = fbJ.live;
+        }
+      });
+    }
+
     await dbRef.set(ST);
-  }catch(e){saveLocal();}
+  }catch(e){
+    console.error("Erro ao salvar no banco, recorrendo ao backup local:", e);
+    saveLocal();
+  }
 }
+
 function loadLocal(){
   try{const s=localStorage.getItem('bolao26v4');if(s){const l=JSON.parse(s);ST={...ST,...l};}}catch(e){}
   if(!ST.jogos||ST.jogos.length===0){ST.jogos=COPA.map(j=>({...j,res:{g1:'',g2:''},live:false}));saveLocal();}
@@ -609,10 +634,8 @@ function saveLocal(){try{localStorage.setItem('bolao26v4',JSON.stringify(ST));}c
 function save(){fbSave();}
 
 // ════════════════════════════════════════════
-// API SYNC / INTERFACE STATE
+// INTERFACE DE CONEXÃO E GERENCIAMENTO
 // ════════════════════════════════════════════
-let syncT=null;
-
 function setSS(t,txt){
   const box = document.getElementById('fb-connection-status');
   const dot = box ? box.querySelector('.dot') : null;
@@ -1629,7 +1652,7 @@ function salvarTimes(id){
   if(!t1||!t2){toast('Escolha os dois times!','e');return;}
   j.t1=t1;j.t2=t2;
   save();rAdmJ();renderJogos();renderBracket();
-  toast('✅ Times updated: '+t1+' × '+t2);
+  toast('✅ Times atualizados: '+t1+' × '+t2);
 }
 window.salvarTimes=salvarTimes;
 
@@ -1745,17 +1768,17 @@ window.apagarPalpiteJogo=apagarPalpiteJogo;
 
 function sincronizarJogos(){
   if(!confirm('Atualizar datas e dados dos jogos sem apagar palpites ou resultados?'))return;
-  COPA.forEach(copaJ=>{
-    const j=ST.jogos.find(x=>x.id===copaJ.id);
+  COPA.forEach(cupaJ=>{
+    const j=ST.jogos.find(x=>x.id===cupaJ.id);
     if(j){
-      j.dt=copaJ.dt;
-      j.city=copaJ.city;
-      j.fase=copaJ.fase;
-      j.gr=copaJ.gr;
-      if(j.t1==='A definir')j.t1=copaJ.t1;
-      if(j.t2==='A definir')j.t2=copaJ.t2;
+      j.dt=cupaJ.dt;
+      j.city=cupaJ.city;
+      j.fase=cupaJ.fase;
+      j.gr=cupaJ.gr;
+      if(j.t1==='A definir')j.t1=cupaJ.t1;
+      if(j.t2==='A definir')j.t2=cupaJ.t2;
     } else {
-      ST.jogos.push({...copaJ,res:{g1:'',g2:''},live:false});
+      ST.jogos.push({...cupaJ,res:{g1:'',g2:''},live:false});
     }
   });
   ST.jogos.sort((a,b)=>new Date(a.dt)-new Date(b.dt));
@@ -1795,7 +1818,7 @@ window.showTab = function(t){
   else{setTimeout(updateFAB,100);}
 };
 
-// INICIALIZAÇÃO
+// INICIALIZAÇÃO AUTOMÁTICA EM SEGUNDO PLANO
 initFirebase();
 </script>
 
