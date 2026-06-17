@@ -599,10 +599,11 @@ async function fbSave(){
     const snap = await dbRef.once('value');
     const atual = snap.val() || {};
     const fbPalpites = atual.palpites || [];
-    const meuNome = (ST.nome||'').trim();
+    // Nome do PARTICIPANTE vem do input, não de ST.nome (que é o nome do bolão)
+    const meuNome = (document.getElementById('inp-nome')?.value||'').trim();
 
     if(!meuNome){
-      // Sem nome definido, salva normalmente (admin ou primeiro uso)
+      // Sem nome de participante, salva normalmente (admin ou primeiro uso)
       await dbRef.set(ST);
       return;
     }
