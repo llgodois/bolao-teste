@@ -647,7 +647,12 @@ function save(){fbSave();}
 // API SYNC
 // ════════════════════════════════════════════
 let syncT=null;
-function setSS(t,txt){}
+function setSS(t,txt){
+  const dot=document.querySelector('.dot');
+  const pill=document.querySelector('.pill');
+  if(dot){dot.className='dot '+t;}
+  if(pill){const span=pill.querySelector('span:last-child');if(span)span.textContent=txt;}
+}
 
 function showTab(t){
   document.querySelectorAll('.pg').forEach(x=>x.classList.remove('on'));
@@ -1313,7 +1318,7 @@ function renderRankingGrupo(gr){
       </div>
     </div>`;
   });
-  h+='<p class="ht" style="margin-top:.65rem;text-align:center">Toque para ver detalhes · ${jogosGr.length} jogo(s) encerrado(s)</p>';
+  h+=`<p class="ht" style="margin-top:.65rem;text-align:center">Toque para ver detalhes · ${jogosGr.length} jogo(s) encerrado(s)</p>`;
   el.innerHTML=h;
 }
 window.renderRankingGrupo=renderRankingGrupo;
@@ -1710,7 +1715,7 @@ function rAdmUsers(){
     jogosComRes.forEach(j=>{
       const pal=ST.palpites.find(p=>p.nome.toLowerCase()===nome.toLowerCase()&&p.jid===j.id);
       if(!pal)return;
-      const r=pts_(pal.g1,pal.g2,j.res.g1,j.res.g2);
+      const r=pts(pal.g1,pal.g2,j.res.g1,j.res.g2);
       if(r===3)pts+=3;else if(r===1)pts+=1;
     });
     h+=`<div style="display:flex;align-items:center;justify-content:space-between;gap:.5rem;padding:.6rem .75rem;background:var(--card2);border-radius:8px;margin-bottom:.45rem;flex-wrap:wrap">
@@ -1728,14 +1733,7 @@ function rAdmUsers(){
 }
 window.rAdmUsers=rAdmUsers;
 
-function pts_(p1,p2,r1,r2){
-  if(r1===''||r2===''||r1==null||r2==null)return null;
-  const a=parseInt(p1),b=parseInt(p2),c=parseInt(r1),d=parseInt(r2);
-  if(isNaN(a)||isNaN(b))return null;
-  if(a===c&&b===d)return 3;
-  const pv=a>b?1:a<b?-1:0,rv=c>d?1:c<d?-1:0;
-  return pv===rv?1:0;
-}
+// pts_ removida: use pts() que é idêntica
 
 function apagarUsuario(nome){
   confirmar(
@@ -1764,7 +1762,7 @@ function verPalpitesUser(nome){
   jogosComPalpite.sort((a,b)=>new Date(a.dt)-new Date(b.dt)).forEach(j=>{
     const pal=ST.palpites.find(p=>p.nome.toLowerCase()===nome.toLowerCase()&&p.jid===j.id);
     const ok=j.res&&j.res.g1!=='';
-    const r=ok?pts_(pal.g1,pal.g2,j.res.g1,j.res.g2):null;
+    const r=ok?pts(pal.g1,pal.g2,j.res.g1,j.res.g2):null;
     const bc=r===3?'by':r===1?'bg':r===0?'br':'';
     h+=`<div style="display:flex;align-items:center;justify-content:space-between;gap:.4rem;padding:.35rem .4rem;border-bottom:1px solid var(--border);font-size:.78rem;flex-wrap:wrap">
       <span style="flex:1;min-width:100px">${j.t1} × ${j.t2}</span>
