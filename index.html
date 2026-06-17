@@ -44,8 +44,8 @@ header{background:linear-gradient(135deg,var(--azul),#001a5e);border-bottom:3px 
 .fg{display:flex;flex-direction:column;gap:5px;}
 .fg label{font-size:.76rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;}
 .fg input:disabled{opacity:0.4;cursor:not-allowed;border-color:rgba(255,255,255,0.05);}
-.fg input,,.fg select{background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:.58rem .82rem;color:var(--text);font-family:'Inter',sans-serif;font-size:.87rem;transition:border-color .15s;}
-.fg input:focus,.fg select:focus{outline:none;border-color:var(--amarelo);}
+.fg input, .fg select{background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:.58rem .82rem;color:var(--text);font-family:'Inter',sans-serif;font-size:.87rem;transition:border-color .15s;}
+.fg input:focus, .fg select:focus{outline:none;border-color:var(--amarelo);}
 .fg input::placeholder{color:var(--muted);}
 select option{background:#1a2235;}
 .fg2{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:.9rem;}
@@ -464,7 +464,7 @@ const COPA = [
   {id:'j2',t1:'Argentina',t2:'Argélia',dt:'2026-06-16T22:00',fase:'Grupos',gr:'J',city:'Kansas City'},
   {id:'j3',t1:'Jordânia',t2:'Argélia',dt:'2026-06-23T00:00',fase:'Grupos',gr:'J',city:'San Francisco'},
   {id:'j4',t1:'Argentina',t2:'Áustria',dt:'2026-06-22T14:00',fase:'Grupos',gr:'J',city:'Dallas'},
-  {id:'j5',t1:'Argélia',t2:'Áustria',dt:'2026-06-27T23:00',fase:'Grupos',gr:'J',city:'Kansas City'},
+  {id:'j5',t1:'Argélia',t2:'Áustria',dt:'2026-06-27T23:00',fase:'Grupos',gr:'J',city(--Kansas City'},
   {id:'j6',t1:'Jordânia',t2:'Argentina',dt:'2026-06-27T23:00',fase:'Grupos',gr:'J',city:'Dallas'},
   // GRUPO K — Portugal, Congo (RD), Uzbequistão, Colômbia
   {id:'k1',t1:'Portugal',t2:'Congo (RD)',dt:'2026-06-17T14:00',fase:'Grupos',gr:'K',city:'Houston'},
@@ -546,7 +546,6 @@ const FASE_LABEL={R32:'Rodada de 32',Oitavas:'Oitavas de Final',Quartas:'Quartas
 function _hideLoading(){}
 
 async function initFirebase(){
-  // Timeout de segurança: libera interface em modo local após 8 segundos se falhar
   const safetyTimer=setTimeout(()=>{
     if(!fbOk){
       ST.jogos=COPA.map(j=>({...j,res:{g1:'',g2:''},live:false}));
@@ -599,16 +598,10 @@ async function fbSave(){
       return;
     }
 
-    // Isola os registros de todos os outros usuários armazenados em nuvem
     const palpitesDosOutros = fbPalpites.filter(p => p.nome.toLowerCase() !== meuNome.toLowerCase());
-
-    // Isola os meus próprios palpites locais atuais
     const meusPalpitesLocais = ST.palpites.filter(p => p.nome.toLowerCase() === meuNome.toLowerCase());
-
-    // Junta as peças preservando as entradas alheias
     ST.palpites = [...palpitesDosOutros, ...meusPalpitesLocais];
 
-    // Evita sobrescrever placares oficiais que o admin porventura postou em tempo real
     if (atual.jogos) {
       atual.jogos.forEach(fbJ => {
         const meuJ = ST.jogos.find(j => j.id === fbJ.id);
@@ -1338,7 +1331,7 @@ function showDet(nome){
   const grupos={exato:[],vencedor:[],errou:[],semPalpite:[]};
   res.forEach(j=>{
     const pal=ST.palpites.find(x=>x.nome.toLowerCase()===nome.toLowerCase()&&x.jid===j.id);
-    const r=pal?pts(pal.g1,pal.g2,j.res.g1,j.res.g2):null;
+    const r=pal?pts(pal.g1,pal.g2,j.res.g1,j.res.g2);
     const item={j,pal,r};
     if(r===3)grupos.exato.push(item);
     else if(r===1)grupos.vencedor.push(item);
